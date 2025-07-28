@@ -37,7 +37,7 @@ jobs:
             -e PATH_SCRIPT_TO_EXECUTE=${{env.PATH_SCRIPT_TO_EXECUTE}} \
             -e INSTANCE_GCP=${{ env.INSTANCE_GCP }} \
             -e USER_BD=${{ env.USER_BD }} \
-            -e PASSWORD_BD=${{ secrets.PASSWORD_BD }} \
+            -e PASSWORD_BD='${{ secrets.PASSWORD_BD }}' \
             -e HOST_BD=${{ env.HOST_BD }} \
             -e PORT_BD=${{ env.PORT_BD }} \
             -e NAME_BD=${{ env.NAME_BD }} \
