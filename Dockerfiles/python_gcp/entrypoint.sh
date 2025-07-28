@@ -45,13 +45,12 @@ echo "=== Repositorio clonado exitosamente ==="
 
 # Iniciar Cloud SQL Proxy en segundo plano
 echo "=== Iniciando Cloud SQL Proxy ==="
-/app/cloud_sql_proxy -instances=${INSTANCE_GCP} & 
-PROXY_PID=$!
+nohup /app/cloud_sql_proxy -instances=${INSTANCE_GCP} &
 
-echo "Cloud SQL Proxy iniciado con PID: $PROXY_PID"
+echo "Cloud SQL Proxy iniciado con PID: $!"
 
 sleep 5  # Esperar un poco para asegurarnos de que el proxy esté listo
 
-echo "=== Ejecutando main.py ==="
+echo "=== Ejecutando script Python ==="
 python /app/src/${PATH_SCRIPT_TO_EXECUTE}
 
