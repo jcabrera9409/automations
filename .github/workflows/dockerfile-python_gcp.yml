@@ -1,0 +1,27 @@
+name: Build and Push Image For Python and GCP
+
+on:
+  push:
+    branches: [main]
+    paths: ['Dockerfiles/python_gcp/**', '.github/workflows/dockerfile-python_gcp.yml']
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/python_gcp:latest
+          docker build -t $IMAGE_NAME .
+
+      - name: Push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/python_gcp:latest
+          docker push $IMAGE_NAME

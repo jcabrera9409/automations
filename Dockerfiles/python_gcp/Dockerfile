@@ -4,6 +4,7 @@ RUN apk add --no-cache curl
 RUN curl -o /cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
 RUN chmod +x /cloud_sql_proxy
 
+#Etapa final
 FROM python:3.11-slim
 
 WORKDIR /app
