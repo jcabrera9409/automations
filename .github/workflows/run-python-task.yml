@@ -43,9 +43,6 @@ jobs:
             -e NAME_BD=${{ env.NAME_BD }} \
             -v ${{ github.workspace }}/credential.json:/app/credential.json \
             ghcr.io/jcabrera9409/python_gcp:latest
-
-      - name: Imprimir logs del contenedor
-        run: docker logs python_gcp_container
           
       - name: Confirmar ejecución completada
         run: echo "Ejecución del contenedor completada."
