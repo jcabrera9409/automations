@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
 COPY --from=downloader /cloud_sql_proxy /app/cloud_sql_proxy
 
 RUN pip install pytz \
-    PyMySQL
+    PyMySQL \ 
+    google-api-python-client
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
