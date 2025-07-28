@@ -1,0 +1,59 @@
+name: Ejecutar Carga Diaria de Datos a BDU
+
+on:
+  workflow_dispatch:  
+
+env:
+  BITBUCKET_USER: jose.cabrera.villarreal
+  BITBUCKET_URL: bitbucket.globaldevtools.bbva.com/bitbucket/scm/dev_ops_codelab/jirautils.git
+  PATH_SCRIPT_TO_EXECUTE: devops_v2/BDUDevops/RunBDUProcess.py
+  INSTANCE_GCP: bbva-sisgestionproyecto-sp:us-central1:db-spp=tcp:3307
+  USER_BD: spp.application
+  HOST_BD: localhost
+  PORT_BD: 3307
+  NAME_BD: spp_pro
+
+jobs:
+  run-container-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar versión de Docker
+        run: docker --version
+
+      - name: Login to GHCR with PAT
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      
+      - name: Crear credential.json desde secreto
+        run: |
+          echo "${{ secrets.CREDENTIAL_JSON_BASE64 }}" | base64 -d > credential.json
+
+      - name: Ejecutar contenedor
+        run: |
+          docker run --name python_gcp_container \
+            -e BITBUCKET_USER=${{ env.BITBUCKET_USER }} \
+            -e BITBUCKET_TOKEN=${{ secrets.BITBUCKET_TOKEN }} \
+            -e BITBUCKET_URL=${{env.BITBUCKET_URL}} \
+            -e PATH_SCRIPT_TO_EXECUTE=${{env.PATH_SCRIPT_TO_EXECUTE}} \
+            -e INSTANCE_GCP=${{ env.INSTANCE_GCP }} \
+            -e USER_BD=${{ env.USER_BD }} \
+            -e PASSWORD_BD=${{ secrets.PASSWORD_BD }} \
+            -e HOST_BD=${{ env.HOST_BD }} \
+            -e PORT_BD=${{ env.PORT_BD }} \
+            -e NAME_BD=${{ env.NAME_BD }} \
+            -v ${{ github.workspace }}/credential.json:/app/credential.json \
+            ghcr.io/jcabrera9409/python_gcp:latest
+
+      - name: Imprimir logs del contenedor
+        run: docker logs python_gcp_container
+          
+      - name: Confirmar ejecución completada
+        run: echo "Ejecución del contenedor completada."
+
+      - name: Eliminar contenedor
+        if: always()
+        run: docker rm -f python_gcp_container || true
+
+      - name: Eliminar credential.json
+        if: always()
+        run: rm -f credential.json
