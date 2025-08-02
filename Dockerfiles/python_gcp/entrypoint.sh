@@ -49,7 +49,11 @@ nohup /app/cloud_sql_proxy -instances=${INSTANCE_GCP} &
 
 echo "Cloud SQL Proxy iniciado con PID: $!"
 
-sleep 5  # Esperar un poco para asegurarnos de que el proxy esté listo
+# Instalar requerimientos si existe requirements.txt
+if [ -f "src/requirements.txt" ]; then
+    echo "=== Instalando requerimientos de Python ==="
+    pip install --no-cache-dir -r src/requirements.txt
+fi
 
 echo "=== Ejecutando script Python ==="
 python /app/src/${PATH_SCRIPT_TO_EXECUTE}
