@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
 COPY --from=downloader /cloud_sql_proxy /app/cloud_sql_proxy
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entrypoint_proxy.sh /entrypoint_proxy.sh
+RUN chmod +x /entrypoint.sh /entrypoint_proxy.sh
 
 ENV BITBUCKET_USER=""
 ENV BITBUCKET_TOKEN=""
