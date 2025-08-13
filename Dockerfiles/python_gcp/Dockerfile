@@ -31,4 +31,4 @@ ENV PORT_BD=""
 ENV NAME_BD=""
 ENV GOOGLE_APPLICATION_CREDENTIALS="/app/credential.json"
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
