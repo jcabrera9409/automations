@@ -1,11 +1,11 @@
 services:
   proxy:
-    image: ghcr.io/jcabrera9409/python_gcp:latest
+    image: python_gcp:latest
     container_name: proxy
     environment:
       - INSTANCE_GCP=${INSTANCE_GCP}
     volumes:
       - ./credential.json:/app/credential.json:ro
     ports:
-      - "3306:3306"
+      - "3307:3307"
     entrypoint: ["/app/entrypoint_proxy.sh"]
