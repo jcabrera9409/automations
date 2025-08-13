@@ -4,21 +4,31 @@ Este contenedor está diseñado para ejecutarse en **GitHub Actions** y conectar
 
 ## Variables de Entorno Requeridas
 
-### Credenciales de Bitbucket
+### Para Ejecución Completa (con clonado de repositorio)
+
+#### Credenciales de Bitbucket
 - `BITBUCKET_USER`: Usuario de Bitbucket
 - `BITBUCKET_TOKEN`: Token de acceso de Bitbucket (App Password)
 - `BITBUCKET_URL`: URL del repositorio sin protocolo (ej: bitbucket.org/workspace/repo.git)
 
-### Configuración de Ejecución
+#### Configuración de Ejecución
 - `PATH_SCRIPT_TO_EXECUTE`: Ruta relativa al script Python a ejecutar (ej: main.py, scripts/process.py)
 - `INSTANCE_GCP`: Instancia de Cloud SQL (formato: project:region:instance)
 
-### Configuración de Base de Datos
+#### Configuración de Base de Datos
 - `USER_BD`: Usuario de la base de datos
 - `PASSWORD_BD`: Contraseña de la base de datos
 - `HOST_BD`: Host de la base de datos
 - `PORT_BD`: Puerto de la base de datos (usualmente 3306)
 - `NAME_BD`: Nombre de la base de datos
+
+### Para Modo Solo Proxy
+
+#### Variables Requeridas
+- `INSTANCE_GCP`: Instancia de Cloud SQL (formato: project:region:instance)
+
+#### Variables Opcionales
+- Puerto de exposición: Por defecto 3307 (configurable con `-p puerto:3307`)
 
 ## Archivos Requeridos
 
@@ -67,14 +77,65 @@ docker run --rm \
   python-ghc
 ```
 
+### Ejecutar solo como Proxy para Base de Datos
+
+Si solo necesitas usar el contenedor como proxy para conectarte a Cloud SQL desde tu aplicación local:
+
+#### Opción 1: Con imagen construida localmente
+```bash
+# Construir la imagen
+docker build -t python-ghc .
+
+# Ejecutar solo el proxy
+docker run --rm \
+  -v /ruta/local/credential.json:/app/credential.json:ro \
+  -e INSTANCE_GCP="proyecto:region:instancia" \
+  -p 3307:3307 \
+  --entrypoint /app/entrypoint_proxy.sh \
+  python-ghc
+```
+
+#### Opción 2: Con imagen desde repositorio
+```bash
+# Ejecutar solo el proxy desde repositorio
+docker run --rm \
+  -v /ruta/local/credential.json:/app/credential.json:ro \
+  -e INSTANCE_GCP="proyecto:region:instancia" \
+  -p 3307:3307 \
+  --entrypoint /app/entrypoint_proxy.sh \
+  tu-repositorio/python-ghc:latest
+```
+
+#### Opción 3: Con Docker Compose
+```bash
+# Configurar variables de entorno en .env
+echo "DOCKER_IMAGE=python-ghc" > .env
+echo "INSTANCE_GCP=proyecto:region:instancia" >> .env
+
+# Ejecutar con docker-compose
+docker-compose up proxy
+```
+
+**Conexión desde tu aplicación local:**
+- Host: `localhost`
+- Puerto: `3307`
+- Las demás credenciales de BD permanecen igual
+
 ## Funcionamiento
 
+### Modo Completo (Ejecución de Scripts)
 1. **Validación**: Verifica que todas las variables de entorno requeridas estén configuradas
 2. **Verificación**: Confirma que el archivo `credential.json` esté presente
 3. **Clone**: Clona el repositorio de Bitbucket en `/app/src` usando las credenciales proporcionadas
 4. **Proxy**: Inicia Cloud SQL Proxy en segundo plano con las credenciales de GCP
 5. **Espera**: Aguarda 5 segundos para que el proxy se inicialice completamente
 6. **Ejecución**: Ejecuta el script Python especificado en `PATH_SCRIPT_TO_EXECUTE`
+
+### Modo Solo Proxy
+1. **Validación**: Verifica que la variable `INSTANCE_GCP` esté configurada
+2. **Verificación**: Confirma que el archivo `credential.json` esté presente
+3. **Proxy**: Inicia Cloud SQL Proxy exponiendo el puerto 3307
+4. **Mantiene**: El proxy permanece activo hasta que se detenga el contenedor
 
 ## Características Técnicas
 
@@ -90,8 +151,16 @@ docker run --rm \
 
 ## Notas Importantes
 
+### Modo Completo
 - El repositorio se clona en `/app/src`
-- El Cloud SQL Proxy se conecta al puerto local 3306
+- El Cloud SQL Proxy se conecta al puerto local 3307
 - Diseñado específicamente para GitHub Actions (no requiere cleanup manual)
 - La variable `BITBUCKET_URL` debe excluir el protocolo `https://`
 - El script se ejecuta desde `/app/src/${PATH_SCRIPT_TO_EXECUTE}`
+
+### Modo Solo Proxy
+- El Cloud SQL Proxy expone el puerto 3307 para conexiones externas
+- Solo requiere el archivo `credential.json` y la variable `INSTANCE_GCP`
+- Ideal para desarrollo local cuando necesitas conectarte a Cloud SQL
+- El contenedor permanece activo hasta ser detenido manualmente
+- Puedes cambiar el puerto local con `-p puerto_deseado:3307`
