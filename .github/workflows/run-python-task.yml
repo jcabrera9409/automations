@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Verificar versión de Docker
         run: docker --version
 
@@ -39,7 +42,6 @@ jobs:
             -e BITBUCKET_USER=${{ env.BITBUCKET_USER }} \
             -e BITBUCKET_TOKEN=${{ secrets.BITBUCKET_TOKEN }} \
             -e BITBUCKET_URL=${{env.BITBUCKET_URL}} \
-            -e PATH_SCRIPT_TO_EXECUTE=${{env.PATH_SCRIPT_TO_EXECUTE}} \
             -e INSTANCE_GCP=${{ env.INSTANCE_GCP }} \
             -e USER_BD=${{ env.USER_BD }} \
             -e PASSWORD_BD='${{ secrets.PASSWORD_BD }}' \

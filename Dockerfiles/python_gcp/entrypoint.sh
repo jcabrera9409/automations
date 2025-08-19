@@ -19,6 +19,16 @@ if [ -z "$PATH_SCRIPT_TO_EXECUTE" ] && [ ! -f "/app/list-python-task.txt" ]; the
     echo "ERROR: Se requiere al menos una de las siguientes opciones:"
     echo "1. La variable PATH_SCRIPT_TO_EXECUTE para un solo script (ej: src/main.py)"
     echo "2. El archivo /app/list-python-task.txt montado como volumen con la lista de scripts"
+    echo ""
+    echo "Estado actual:"
+    echo "- PATH_SCRIPT_TO_EXECUTE: '${PATH_SCRIPT_TO_EXECUTE:-<vacío>}'"
+    echo "- Archivo /app/list-python-task.txt existe: $([ -f "/app/list-python-task.txt" ] && echo "SÍ" || echo "NO")"
+    
+    if [ ! -f "/app/list-python-task.txt" ]; then
+        echo "- Contenido del directorio /app:"
+        ls -la /app/ || echo "  No se puede listar /app/"
+    fi
+    
     exit 1
 fi
 
