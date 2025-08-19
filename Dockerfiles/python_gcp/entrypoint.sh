@@ -15,8 +15,10 @@ if [ -z "$USER_BD" ] || [ -z "$PASSWORD_BD" ] || [ -z "$HOST_BD" ] || [ -z "$POR
     exit 1
 fi
 
-if [ -z "$PATH_SCRIPT_TO_EXECUTE" ]; then
-    echo "ERROR: La variable PATH_SCRIPT_TO_EXECUTE es requerida (ej: src/main.py)"
+if [ -z "$PATH_SCRIPT_TO_EXECUTE" ] && [ ! -f "/app/list-python-task.txt" ]; then
+    echo "ERROR: Se requiere al menos una de las siguientes opciones:"
+    echo "1. La variable PATH_SCRIPT_TO_EXECUTE para un solo script (ej: src/main.py)"
+    echo "2. El archivo /app/list-python-task.txt montado como volumen con la lista de scripts"
     exit 1
 fi
 
@@ -55,6 +57,68 @@ if [ -f "src/requirements.txt" ]; then
     pip install --no-cache-dir -r src/requirements.txt
 fi
 
-echo "=== Ejecutando script Python ==="
-python /app/src/${PATH_SCRIPT_TO_EXECUTE}
+echo "=== Ejecutando script(s) Python ==="
+
+# Función para ejecutar un script con sus argumentos
+execute_script() {
+    local script_path="$1"
+    shift
+    local args=("$@")
+    
+    echo "--- Ejecutando: python /app/src/${script_path} ${args[*]} ---"
+    python /app/src/${script_path} "${args[@]}"
+    local exit_code=$?
+    
+    if [ $exit_code -eq 0 ]; then
+        echo "--- Script ${script_path} ejecutado exitosamente ---"
+    else
+        echo "--- ERROR: Script ${script_path} falló con código de salida ${exit_code} ---"
+        exit $exit_code
+    fi
+}
+
+# Verificar si se debe usar el archivo de tareas o la variable de script único
+if [ -f "/app/list-python-task.txt" ]; then
+    echo "=== Modo archivo de tareas detectado ==="
+    echo "=== Leyendo scripts desde /app/list-python-task.txt ==="
+    
+    # Verificar que el archivo no esté vacío
+    if [ ! -s "/app/list-python-task.txt" ]; then
+        echo "ERROR: El archivo /app/list-python-task.txt está vacío"
+        exit 1
+    fi
+    
+    # Leer el archivo línea por línea
+    line_number=0
+    while IFS= read -r line || [ -n "$line" ]; do
+        line_number=$((line_number + 1))
+        
+        # Saltar líneas vacías y comentarios (líneas que empiezan con #)
+        if [ -z "$line" ] || [[ "$line" =~ ^[[:space:]]*# ]]; then
+            continue
+        fi
+        
+        # Remover espacios en blanco al inicio y final
+        line=$(echo "$line" | xargs)
+        
+        if [ -n "$line" ]; then
+            echo "--- Procesando línea $line_number: $line ---"
+            
+            # Convertir la línea en un array de argumentos
+            read -ra SCRIPT_ARGS <<< "$line"
+            
+            script_path="${SCRIPT_ARGS[0]}"
+            # Obtener argumentos (todo excepto el primer elemento)
+            args=("${SCRIPT_ARGS[@]:1}")
+            
+            execute_script "$script_path" "${args[@]}"
+        fi
+    done < "/app/list-python-task.txt"
+    
+elif [ -n "$PATH_SCRIPT_TO_EXECUTE" ]; then
+    echo "=== Modo script único (retrocompatibilidad) ==="
+    execute_script "$PATH_SCRIPT_TO_EXECUTE"
+fi
+
+echo "=== Todos los scripts ejecutados exitosamente ==="
 

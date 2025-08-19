@@ -11,7 +11,7 @@ on:
 env:
   BITBUCKET_USER: jose.cabrera.villarreal
   BITBUCKET_URL: bitbucket.globaldevtools.bbva.com/bitbucket/scm/dev_ops_codelab/jirautils.git
-  PATH_SCRIPT_TO_EXECUTE: devops_v2/BDUDevops/RunBDUProcess.py
+  TASK_FILE_PATH: configs_workflows/list-python-task.txt
   INSTANCE_GCP: bbva-sisgestionproyecto-sp:us-central1:db-spp=tcp:3307
   USER_BD: spp.application
   HOST_BD: localhost
@@ -47,6 +47,7 @@ jobs:
             -e PORT_BD=${{ env.PORT_BD }} \
             -e NAME_BD=${{ env.NAME_BD }} \
             -v ${{ github.workspace }}/credential.json:/app/credential.json \
+            -v ${{ github.workspace }}/${{ env.TASK_FILE_PATH }}:/app/list-python-task.txt \
             ghcr.io/jcabrera9409/python_gcp:latest
           
       - name: Confirmar ejecución completada
