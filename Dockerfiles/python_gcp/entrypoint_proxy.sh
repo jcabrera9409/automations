@@ -20,7 +20,7 @@ echo "=== Variables de entorno verificadas ==="
 
 # Iniciar Cloud SQL Proxy en segundo plano
 echo "=== Iniciando Cloud SQL Proxy ==="
-/app/cloud_sql_proxy -address -instances=${INSTANCE_GCP}
+/app/cloud_sql_proxy -address 0.0.0.0 -instances=${INSTANCE_GCP}
 
 
 
