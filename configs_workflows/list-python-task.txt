@@ -1,2 +1,3 @@
 devops_v2/BDUDevops/RunBDUProcess.py
 devops_v2/CopilotAutomation/ReportCopilotAutomation.py PI4-25
+devops_v2/GithubAutomation/ReportGithubCertificationAutomation.py PI4-25
