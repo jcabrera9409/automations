@@ -1,3 +1,4 @@
 devops_v2/BDUDevops/RunBDUProcess.py
 devops_v2/CopilotAutomation/ReportCopilotAutomation.py PI4-25 2025-09-22 2025-12-12
 devops_v2/GitHubAutomation/ReportGithubCertificationAutomation.py PI4-25
+devops_v2/CopilotAutomation/AdoptionNotification.py PI4-25
