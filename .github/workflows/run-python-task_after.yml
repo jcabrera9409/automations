@@ -2,7 +2,7 @@ name: Ejecutar Carga Diaria de Datos a BDU
 
 on:
   schedule:
-    - cron: '0 23 * * 1-5'
+    - cron: '0 23 * * *'
   workflow_dispatch:
   
 env:
