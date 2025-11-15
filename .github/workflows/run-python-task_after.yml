@@ -1,8 +1,8 @@
-name: Ejecutar Carga Diaria de Datos a BDU
+name: Ejecutar Carga Diaria Post Horario Laboral
 
 on:
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
   
 env:
