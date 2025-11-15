@@ -1,0 +1,75 @@
+name: Ejecutar Carga Diaria de Datos a BDU
+
+on:
+  schedule:
+    - cron: '0 23 * * 1-5'
+  workflow_dispatch:
+  
+env:
+  BITBUCKET_USER: jose.cabrera.villarreal
+  BITBUCKET_URL: bitbucket.globaldevtools.bbva.com/bitbucket/scm/dev_ops_codelab/jirautils.git
+  TASK_FILE_PATH: configs_workflows/list-python-task-after.txt
+  INSTANCE_GCP: bbva-sisgestionproyecto-sp:us-central1:db-spp=tcp:3307
+  USER_BD: spp.application
+  HOST_BD: localhost
+  PORT_BD: 3307
+  NAME_BD: spp_pro
+
+jobs:
+  run-container-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verificar versión de Docker
+        run: docker --version
+
+      - name: Login to GHCR with PAT
+        run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      
+      - name: Crear credential.json desde secreto
+        run: |
+          echo "${{ secrets.CREDENTIAL_JSON_BASE64 }}" | base64 -d > credential.json
+
+      - name: Ejecutar contenedor
+        run: |
+          docker run --name python_gcp_container \
+            -e BITBUCKET_USER=${{ env.BITBUCKET_USER }} \
+            -e BITBUCKET_TOKEN=${{ secrets.BITBUCKET_TOKEN }} \
+            -e BITBUCKET_URL=${{env.BITBUCKET_URL}} \
+            -e INSTANCE_GCP=${{ env.INSTANCE_GCP }} \
+            -e USER_BD=${{ env.USER_BD }} \
+            -e PASSWORD_BD='${{ secrets.PASSWORD_BD }}' \
+            -e HOST_BD=${{ env.HOST_BD }} \
+            -e PORT_BD=${{ env.PORT_BD }} \
+            -e NAME_BD=${{ env.NAME_BD }} \
+            -v ${{ github.workspace }}/credential.json:/app/credential.json \
+            -v ${{ github.workspace }}/${{ env.TASK_FILE_PATH }}:/app/list-python-task.txt \
+            ghcr.io/jcabrera9409/python_gcp:latest
+          
+      - name: Confirmar ejecución completada
+        run: echo "Ejecución del contenedor completada."
+
+      - name: Eliminar contenedor
+        if: always()
+        run: docker rm -f python_gcp_container || true
+
+      - name: Eliminar credential.json
+        if: always()
+        run: rm -f credential.json
+
+      - name: Notificar por Telegram
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MSG="*${{ job.status == 'success' && '✅ Éxito' || '❌ Fallo' }}* en la carga de datos.\n[Ver detalles](${{
+            github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
+          curl -s -X POST https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage \
+            -d chat_id=$TELEGRAM_CHAT_ID \
+            -d text="$MSG" \
+            -d parse_mode=Markdown
