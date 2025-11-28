@@ -64,6 +64,7 @@ echo "Cloud SQL Proxy iniciado con PID: $!"
 # Instalar requerimientos si existe requirements.txt
 if [ -f "src/requirements.txt" ]; then
     echo "=== Instalando requerimientos de Python ==="
+    pip install --upgrade pip
     pip install --no-cache-dir -r src/requirements.txt
 fi
 
