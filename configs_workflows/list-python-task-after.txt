@@ -1,2 +1,1 @@
 devops_v2/Security/RunGetBDWorkdayPMO.py PI4-25
-devops_v2/Reports/ReporteSeguimientoSeguridad.py 2025-11-01 2025-11-30
