@@ -1,6 +1,7 @@
 services:
   proxy:
     image: ${DOCKER_IMAGE}
+    platform: linux/amd64
     container_name: proxy
     environment:
       - INSTANCE_GCP=${INSTANCE_GCP}
