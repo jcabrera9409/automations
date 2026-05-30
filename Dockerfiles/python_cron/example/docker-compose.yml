@@ -1,0 +1,13 @@
+services:
+  cron:
+    image: cron:latest
+    platform: linux/amd64
+    container_name: cron
+    environment:
+      - REQUIREMENTS_FILE=/app/requeriments.txt
+      - CRON_JOBS_FILE=/etc/cron.d/python-jobs
+    volumes:
+      - ./requeriments.txt:/app/requeriments.txt
+      - ./example-cron-jobs:/etc/cron.d/python-jobs
+      - ./scripts:/app/scripts
+    entrypoint: ["/app/entrypoint.sh"]

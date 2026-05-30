@@ -1,0 +1,2 @@
+# Cron Execute Every 2 Minutes
+* * * * * /usr/local/bin/python /app/scripts/example.py >> /var/log/cron.log 2>&1
