@@ -28,7 +28,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/python_cron
           tags: |
-            type=value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         if: github.ref == 'refs/heads/main'
