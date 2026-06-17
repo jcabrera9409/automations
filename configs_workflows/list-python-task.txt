@@ -1,7 +1,7 @@
 devops_v2/BDUDevops/RunLoadDataHelixFromAPI.py
 devops_v2/BDUDevops/RunBDUProcess.py
-devops_v2/CopilotAutomation/ReportCopilotAutomation.py PI2-26 2026-03-23 2026-06-12
-devops_v2/GitHubAutomation/ReportGithubCertificationAutomation.py PI2-26
+devops_v2/CopilotAutomation/ReportCopilotAutomation.py PI3-26 2026-06-22 2026-09-11
+devops_v2/GitHubAutomation/ReportGithubCertificationAutomation.py PI3-26
 devops_v2/LicencesAutomation/ReportGithubCopilotAutomation.py
 devops_v2/LicencesAutomation/CompleteReportGithubCopilotAutomation.py
 devops_v2/Reports/GeneracionReportesTablasTemporales.py
