@@ -24,3 +24,8 @@
 
 credential.json
 .env
+
+postgresql_data
+sonarqube_data
+sonarqube_logs
+sonarqube_extensions
